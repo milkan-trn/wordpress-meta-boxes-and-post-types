@@ -1,0 +1,99 @@
+<?php
+
+/* 
+ * sd_login metaboxes.
+ */
+class SD_meta_boxes {
+    public function __construct() {
+        add_action( 'add_meta_boxes', array( $this, 'sd_register_metaboxes' ) );
+        add_action( 'save_post', array( $this, 'sd_save_meta_box' ) );
+        
+    }
+
+
+   /**
+     *  It will register metaboxes
+     */
+    public function sd_register_metaboxes() { 
+        
+      add_meta_box( 'sd_login_meta_box', __( "Enter Store Login Details", 'SD' ), array( $this, 'SD_post_meta' ), 'sy_logins', 'normal', 'high' );
+    }
+    
+    
+    
+/**
+ * Meta box display callback.
+ *
+ * @param WP_Post $post Current post object.
+ */
+function SD_post_meta( $post ) { ?>
+   <div class="hcf_box">
+    <style scoped>
+        .hcf_box{
+            display: flex;
+            flex-direction: column;
+        }
+        .hcf_field{
+            display: contents;
+        }
+        label {
+            margin: 10px 0 5px 0;
+        }
+    </style>
+   
+    <p class="meta-options hcf_field">
+        <label for="store_address">Store address</label>
+        <input id="store_address" name="store_address" 
+        value="<?php echo esc_attr( get_post_meta( get_the_ID(), 'store_address', true ) ); ?>"> 
+    
+    </p>
+    <br/>
+    <p class="meta-options hcf_field">
+        <label for="api_key">API key</label>
+        <input id="api_key" name="api_key" 
+        value="<?php echo esc_attr( get_post_meta( get_the_ID(), 'api_key', true ) ); ?>"> 
+    
+    </p>
+    <br/>
+    <p class="meta-options hcf_field">
+        <label for="api_secret_pass">API secret(Password)</label>
+        <input id="api_secret_pass" name="api_secret_pass" 
+        value="<?php echo esc_attr( get_post_meta( get_the_ID(), 'api_secret_pass', true ) ); ?>"> 
+    
+    </p>
+    <br/>
+     <p class="meta-options hcf_field">
+        <label for="request_timeout">Vendor email</label>
+        <input id="email" name="vendor_email" 
+        value="<?php echo esc_attr( get_post_meta( get_the_ID(), 'vendor_email', true ) ); ?>"> 
+    
+    </p>
+    <br/>
+</div>
+<?php }
+
+function sd_save_meta_box( $post_id ) {
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+    if ( $parent_id = wp_is_post_revision( $post_id ) ) {
+        $post_id = $parent_id;
+    }
+    $fields = [
+        'store_address',
+        'api_key',
+        'api_secret_pass',
+        'vendor_email',
+       
+    ];
+    foreach ( $fields as $field ) {
+        if ( array_key_exists( $field, $_POST ) ) {
+            update_post_meta( $post_id, $field, sanitize_text_field( $_POST[$field] ) );
+        }
+     }
+}
+
+    
+    
+    /**class end*/
+    }
+    
+    new SD_meta_boxes();
