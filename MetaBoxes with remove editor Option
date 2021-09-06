@@ -1,0 +1,105 @@
+<?php
+
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ * Register meta boxes.
+ */
+function fp_register_meta_boxes() {
+    global $post;
+    $post_id = isset($_GET['post']) ? $_GET['post'] : 0 ;
+    if ($post_id == '42')
+{
+        //This will remove editor from page
+     remove_post_type_support('page', 'editor');
+    add_meta_box( 'fp-1', __( 'Edit Front Page Text Fields', 'mediaotg' ), 'fp_display_callback', 'page' );
+}
+}
+add_action( 'add_meta_boxes', 'fp_register_meta_boxes' );
+
+/**
+ * Meta box display callback.
+ *
+ * @param WP_Post $post Current post object.
+ */
+function fp_display_callback( $post ) { ?>
+   <div class="hcf_box">
+    <style scoped>
+        .hcf_box{
+            display: flex;
+            flex-direction: column;
+        }
+        .hcf_field{
+            display: contents;
+        }
+        label {
+            margin: 10px 0 5px 0;
+        }
+    </style>
+    <p class="meta-options hcf_field">
+          You can edit, add, remove Slider on this link 
+        <a href="<?php echo home_url() . '/wp-admin/edit.php?post_type=fp_images'; ?>">Edit Slider</a>
+  </textarea>
+    </p>
+    <p class="meta-options hcf_field">
+        <label for="fp_brand">Header Line</label>
+        <textarea id="fp_brand" name="fp_brand" rows="1" cols="50">
+        <?php echo esc_attr( get_post_meta( get_the_ID(), 'fp_brand', true ) ); ?>
+  </textarea>
+    </p>
+    <p class="meta-options hcf_field">
+        <label for="fp_title01">First Paragraph</label>
+        <textarea id="fp_title01" name="fp_title01" rows="4" cols="50">
+        <?php echo esc_attr( get_post_meta( get_the_ID(), 'fp_title01', true ) ); ?>
+  </textarea>
+    </p>
+    <p class="meta-options hcf_field">
+        <label for="fp_title01b">Second Paragraph</label>
+        <textarea id="fp_title01b" name="fp_title01b" rows="4" cols="50">
+        <?php echo esc_attr( get_post_meta( get_the_ID(), 'fp_title01b', true ) ); ?>
+  </textarea>
+    </p>
+    <br/>
+    <p  style="width: 100%; height: 3px; background: #d5d5d5;"></p >
+    <p class="meta-options hcf_field">
+        <label for="fp_capabilities">Capabilities</label>
+        <textarea id="fp_capabilities" name="fp_capabilities" rows="1" cols="50">
+        <?php echo esc_attr( get_post_meta( get_the_ID(), 'fp_capabilities', true ) ); ?>
+  </textarea>
+    </p>
+    <p class="meta-options hcf_field">
+        <label for="fp_capabilities_text">Text 02</label>
+        <textarea id="fp_capabilities_text" name="fp_capabilities_text" rows="4" cols="50">
+        <?php echo esc_attr( get_post_meta( get_the_ID(), 'fp_capabilities_text', true ) ); ?>
+  </textarea>
+    </p>
+    <p class="meta-options hcf_field">
+        You can edit, add, remove Capabilities on this link 
+        <a href="<?php echo home_url() . '/wp-admin/edit.php?post_type=cp_post'; ?>">Edit Capabilities</a>
+    </p>
+</div>
+<?php }
+
+function fp_save_meta_box( $post_id ) {
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+    if ( $parent_id = wp_is_post_revision( $post_id ) ) {
+        $post_id = $parent_id;
+    }
+    $fields = [
+        'fp_brand',
+        'fp_title01',
+        'fp_title01b',
+        'fp_capabilities',
+        'fp_capabilities_text',
+    ];
+    foreach ( $fields as $field ) {
+        if ( array_key_exists( $field, $_POST ) ) {
+            update_post_meta( $post_id, $field, sanitize_text_field( $_POST[$field] ) );
+        }
+     }
+}
+add_action( 'save_post', 'fp_save_meta_box' );
